@@ -1,0 +1,81 @@
+[
+  {
+    "id": "ai",
+    "title": "The AI Revolution",
+    "content": "Artificial Intelligence (AI) is transforming every industry, from healthcare to finance. Learn how AI models are trained, deployed, and optimized for real-world use cases.",
+    "image": "",
+    "tags": "future",
+    "author": "jack",
+    "datePublished": "03/07/2025"
+  },
+  {
+    "id": "automation",
+    "title": "Automation in 2025",
+    "content": "Automation continues to evolve with AI-driven systems, making workplaces more efficient while shifting focus toward creative and strategic roles.",
+    "image": "",
+    "tags": "impactful",
+    "author": "sam",
+    "datePublished": "03/08/2025"
+
+
+  },
+  {
+    "id": "productivity",
+    "title": "as",
+    "content": "Discover techniques, tools, and habits that can help you maximize productivity and minimize burnout in a fast-paced digital world.",
+    "image": "",
+    "tags": "automation",
+    "author": "chris",
+    "datePublished": "03/07/2025"
+
+  },
+  {
+    "id": "productivity2",
+    "title": "Boosting Productivity",
+    "content": "Discover techniques, tools, and habits that can help you maximize productivity and minimize burnout in a fast-paced digital world.",
+    "image": "",
+    "tags": "automation",
+    "author": "ben",
+    "datePublished": "03/01/2025"
+
+  },
+  {
+    "id": "productivity3",
+    "title": "Boosting Productivity",
+    "content": "Discover techniques, tools, and habits that can help you maximize productivity and minimize burnout in a fast-paced digital world.",
+    "image": "",
+    "tags": "automation",
+    "author": "emmanuel",
+    "datePublished": "03/03/2025"
+
+  },
+  {
+    "id": "productivity4",
+    "title": "Boosting Productivity",
+    "content": "Discover techniques, tools, and habits that can help you maximize productivity and minimize burnout in a fast-paced digital world.",
+    "image": "",
+    "tags": "automation",
+    "author": "zach",
+    "datePublished": "03/01/2024"
+
+  },
+  {
+    "id": "productivity5",
+    "title": "Boosting Productivity",
+    "content": "Discover techniques, tools, and habits that can help you maximize productivity and minimize burnout in a fast-paced digital world.",
+    "image": "",
+    "tags": "automation",
+    "author": "sam",
+    "datePublished": "03/07/2025"
+
+  },
+  {
+    "id": "productivity6",
+    "title": "Boosting Productivity",
+    "content": "Discover techniques, tools, and habits that can help you maximize productivity and minimize burnout in a fast-paced digital world.",
+    "image": "",
+    "tags": "automation",
+    "author": "daniel",
+    "datePublished": "03/07/2025"
+  }
+]

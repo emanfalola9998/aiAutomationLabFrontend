@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "user": "ai_user_001",
+        "comment": "The model provides accurate predictions, but inference time could be improved.",
+        "timestamp": "2025-11-20T10:15:00Z",
+        "rating": 4,
+        "blogId": "productivity3"
+    },
+    {
+        "id": 2,
+        "user": "ai_user_002",
+        "comment": "Great dataset. Training results showed a significant boost after fine-tuning.",
+        "timestamp": "2025-11-20T10:18:00Z",
+        "rating": 5,
+        "blogId": "productivity3"
+    },
+    {
+        "id": 3,
+        "user": "ai_user_003",
+        "comment": "The AI still makes some hallucination errors when asked about recent events.",
+        "timestamp": "2025-11-20T10:25:00Z",
+        "rating": 3,
+        "blogId": "automation"
+    },
+    {
+        "id": 4,
+        "user": "ai_user_004",
+        "comment": "Deployment was smooth and model response time is very consistent.",
+        "timestamp": "2025-11-20T10:40:00Z",
+        "rating": 4,
+        "blogId": "automation"
+    },
+    {
+        "id": 5,
+        "user": "ai_user_005",
+        "comment": "Could use better documentation, but overall functionality is impressive.",
+        "timestamp": "2025-11-20T10:55:00Z",
+        "rating": 4,
+        "blogId": "ai"
+    }
+]

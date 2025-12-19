@@ -1,23 +1,12 @@
-import blogs from '../../data/blogs.json'
-import BlogClient from './BlogClient';
+import { use } from "react";
+import BlogPageClient from "./BlogPageClient";
 
-type Blog = {
-  id: string;
-  title: string;
-  content: string;
-  image: string;
-};
+export default function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params); // ✅ required in Next 15
 
-
-export default async function BlogPage({ params }: { params: { id: string } }) {
-  // Await params
-  const { id } = await params;
-
-  const blog = blogs.find(b => b.id === id);
-
-  if (!blog) {
-    return <div className="p-10 text-red-500">Blog not found</div>;
-  }
-
-  return <BlogClient blog={blog} />;
+  return <BlogPageClient id={id} />;
 }

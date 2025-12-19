@@ -12,8 +12,8 @@ import { setSortComment } from "@/store/features/counterSlice";
 
     return (
         <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-            <Button variant="black" className="mr-4">Sort</Button>
+        <DropdownMenuTrigger className="" asChild>
+            <Button variant="custom" className="hover:bg-orange-200 mr-4 w-40 font-bold cursor-pointer ">Sort</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="start">
             <DropdownMenuLabel>Sort by</DropdownMenuLabel>

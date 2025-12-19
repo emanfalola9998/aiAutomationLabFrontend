@@ -10,17 +10,19 @@ import socialMedia from '../assets/images/social-media.png'
 import cloud from '../assets/images/cloud-sync.png'
 import syncData from '../assets/images/data-synchronization.png'
 import taskManagement from '../assets/images/task-management.png'
-
+import emailLink from '../assets/images/email (3).png'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 
 const template = () => {
   return (
     <>
+      <ProtectedRoute>
       <div className=' text-center sm:p-20'>
         <h1 className='text-2xl mt-6 text-center mb-8 font-bold '>
           Commercial work
         </h1>
-        <div className='flex flex-col lg:flex-row items-stretch  bg-linear-to-r from-gray-600 to-black  border-2 border-yellow-400 gap-4 p-4'>
+        <div className='flex flex-col lg:flex-row items-stretch border-2 border-gray-400 gap-4 p-4'>
           <div className=" sm:p-8  ">
             <h2 className='text-xl font-bold mb-4'>
               Developed an Automation Workflow for Service Provider Onboarding - Tisume
@@ -52,18 +54,18 @@ const template = () => {
       </div>
 
 
-        <div className='mt-10 text-center justify-center border-2 '>
+        <div className='mt-10 text-center justify-center  '>
           <h1 className='mb-10 font-bold text-xl'>
             Our Manifesto 
           </h1>
           <p className='mb-10'>
             “Empowering your business with intelligent AI automations — smarter workflows, better results.”
           </p>
-          <h1 className='my-5 font-bold text-xl'>Automations</h1>
+          <h1 className='my-5 p-5 md:p-0 font-bold text-xl'>Automations</h1>
 
           <div className='grid grid-col-1 grid-row-1  lg:grid-cols-3 lg:grid-rows-2 gap-4 my-10'>
             
-            <div className='flex flex-col justify-center border-2 shadow-2xl border-blue-500 bg-linear-to-r from-[#3876d4] to-black'>
+            <div className='flex flex-col justify-center border-2 shadow-2xl '>
               <div className='flex flex-row justify-center  items-center text-2xl gap-3'><span><Image src={email} className="w-20" alt="email icon"/></span>Notifications</div> 
               <div>
                 <div className='flex flex-row justify-center  items-center text-l gap-3'><span><Image src={trigger} alt="icon of a tapping/trigger action" className='w-20'/> </span> New submission on a Google Form or Typeform.</div>
@@ -72,7 +74,7 @@ const template = () => {
               </div>
             </div>
 
-            <div className='flex flex-col justify-center border-2 shadow-2xl border-blue-500 bg-linear-to-r from-[#3876d4] to-black'>
+            <div className='flex flex-col justify-center border-2 shadow-2xl '>
               <div className='flex flex-row justify-center  items-center text-2xl gap-3'><span><Image src={crm} className="w-20" alt="crm-icon"/></span>New Leads from Web Forms to CRM</div> 
               <div>
                 <div className='flex flex-row justify-center  items-center text-l gap-3'><span><Image src={trigger} alt="icon of a tapping/trigger action" className='w-20'/> </span> New form submission from a web page (e.g., Google Forms, Typeform, or Jotform).</div>
@@ -81,7 +83,7 @@ const template = () => {
               </div>
             </div>
 
-            <div className='flex flex-col justify-center border-2 shadow-2xl border-blue-500 bg-linear-to-r from-[#3876d4] to-black'>
+            <div className='flex flex-col justify-center border-2 shadow-2xl '>
               <div className='flex flex-row justify-center  items-center text-2xl gap-3'><span><Image src={socialMedia} className="w-20" alt="social-media-icon"/></span>Social Media Post Automation</div> 
               <div>
                 <div className='flex flex-row justify-center  items-center text-l gap-3'><span><Image src={trigger} alt="icon of a tapping/trigger action" className='w-20'/> </span> New blog post or new content uploaded to a website.</div>
@@ -90,7 +92,7 @@ const template = () => {
               </div>
             </div>
 
-            <div className='flex flex-col justify-center border-2 shadow-2xl border-blue-500 bg-linear-to-r from-[#3876d4] to-black'>
+            <div className='flex flex-col justify-center border-2 shadow-2xl '>
               <div className='flex flex-row justify-center  items-center text-2xl gap-3'><span><Image src={cloud} className="w-20" alt="cloud-icon"/></span>Automated Backups</div> 
               <div>
                 <div className='flex flex-row justify-center  items-center text-l gap-3'><span><Image src={trigger} alt="icon of a tapping/trigger action" className='w-20'/> </span> Scheduled trigger (e.g., every day at midnight).</div>
@@ -100,7 +102,7 @@ const template = () => {
             </div>
 
             
-            <div className='flex flex-col justify-center border-2 shadow-2xl border-blue-500 bg-linear-to-r from-[#3876d4] to-black'>
+            <div className='flex flex-col justify-center border-2 shadow-2xl '>
               <div className='flex flex-row justify-center  items-center text-2xl gap-3'><span><Image src={syncData} className="w-20" alt="sync-data-Icon"/></span>Syncing Data Between Apps</div> 
               <div>
                 <div className='flex flex-row justify-center  items-center text-l gap-3'><span><Image src={trigger} alt="icon of a tapping/trigger action" className='w-20'/> </span>New row in Google Sheets, Airtable, or a new record in a database.</div>
@@ -109,7 +111,7 @@ const template = () => {
               </div>
             </div>
 
-            <div className='flex flex-col justify-center border-2 shadow-2xl border-blue-500 bg-linear-to-r from-[#3876d4] to-black'>
+            <div className='flex flex-col justify-center border-2 shadow-2xl '>
               <div className='flex flex-row justify-center  items-center text-2xl gap-3'><span><Image src={taskManagement} className="w-20" alt="task-management-icon"/></span>Task Management Automation</div> 
               <div>
                 <div className='flex flex-row justify-center  items-center text-l gap-3'><span><Image src={trigger} alt="icon of a tapping/trigger action" className='w-20'/> </span>New task created in a project management tool like Trello or Asana.</div>
@@ -121,10 +123,19 @@ const template = () => {
           </div>
 
         </div>
-        <p>If you would like to get in contact for possible automation needs please click the <a className='' href="mailto:emmanuelfalola9998@gmail.com.com">
-            <i className="fa-solid fa-at">email</i>
-        </a></p>
+        <div className='flex flex-row justify-center gap-4'>
+          <p>If you would like to get in contact for possible automation needs please click the Message Icon 
+          </p>
+            <a className='' href="mailto:emmanuelfalola9998@gmail.com.com">
+            <Image 
+                src={emailLink}
+                alt="email-link"
+                className='w-10'
+            />
+          </a>
+        </div>
       </div>
+      </ProtectedRoute>
     </>
   )
 }

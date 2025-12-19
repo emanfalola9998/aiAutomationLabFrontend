@@ -1,7 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import commentsData from '../../app/data/comments.json'
 import { v4 as uuidv4 } from 'uuid';
-import { Blog, Comments } from '../../../types';
+import { Blog, Comments, CreateComment } from '../../../types';
 
 
 type SortMode = "rating" | "latest" | "oldest";
@@ -15,14 +15,16 @@ export interface AiState {
     isFuture: boolean
     searchTerm: string
     currentPage: number
-    viewComments: boolean
-    rating: number
-    comment: Comments[]
-    createComment: Comments
-    toggleCreateComment: boolean
+    viewComments: { [blogId: string]: boolean };
+    allComments: Comments[]
+    createComment: CreateComment
+    toggleCreateComment: { [blogId: string]: boolean };
     sortComment: SortMode,
-    filteredBlogs: Blog[],
-    
+    searchActive: boolean,
+    allBlogs: Blog[];          // all blogs from backend
+    filteredBlogs: Blog[];     // filtered or searched blogs
+    commentsByBlog: { [blogId: string]: Comments[] }; // comments per blog
+    isLoading: boolean
 }
 
 const initialState: AiState = {
@@ -32,18 +34,10 @@ const initialState: AiState = {
     isFuture: false,
     searchTerm: '',
     currentPage: 1,
-    viewComments: false,
-    rating: 0,
-    comment: commentsData,
-    createComment: {
-        blogId: 'ai',            // current blog ID
-        id: parseInt(uuidv4()),  // or use a counter in state
-        user: 'John',
-        comment: 'Great post!',
-        timestamp: new Date().toISOString(),
-        rating: 0
-    },
-    toggleCreateComment: false, 
+    viewComments: {},
+    allComments: [],
+    createComment: {},
+    toggleCreateComment: {},
     sortComment: "rating",
     filteredBlogs: [{
         id: '',
@@ -52,8 +46,13 @@ const initialState: AiState = {
         image: '',
         tags: '',
         author: '',
-        datePublished: ''
-    }]
+        datePublished: '',
+        likes: 0
+    }],
+    searchActive: false,
+    commentsByBlog: {},
+    allBlogs: [],
+    isLoading: true
 }
 
 const aiSlice =  createSlice({
@@ -77,32 +76,28 @@ const aiSlice =  createSlice({
         },
 
         setSearchTerm: (state, action:PayloadAction<string>) => {
-            state.searchTerm = action.payload
+            state.searchTerm = action.payload.toLowerCase(); // doing it here instead of within the code
         },
 
         setCurrentPage: (state, action:PayloadAction<number>) => {
             state.currentPage = action.payload
         },
 
-        setViewComments: (state, action:PayloadAction<boolean>) => {
-            state.viewComments = action.payload
+        // Toggle view comments for a blog
+        toggleViewComments: (state, action: PayloadAction<string>) => {
+            state.viewComments[action.payload] = !state.viewComments[action.payload];
         },
 
-        setRating: (state, action: PayloadAction<number>) => {
-            state.rating = action.payload; // set to value
+        // Increment comment rating
+        incrementCommentRating: (state, action: PayloadAction<{ blogId: string; commentId: number }>) => {
+            const { blogId, commentId } = action.payload;
+            const comment = state.commentsByBlog[blogId]?.find(c => c.id === commentId);
+            if (comment) comment.rating = (comment.rating || 0) + 1;
         },
-
-        incrementCommentRating: (state, action: PayloadAction<number>) => {
-            const comment = state.comment.find(c => c.id === action.payload);
-                if (comment) {
-                    comment.rating = (comment.rating || 0) + 1;
-                }
-            },
-
-        // setCreateComment:
         
-        setToggleCreateComment: (state, action:PayloadAction<boolean>) => {
-            state.toggleCreateComment = action.payload
+        // Toggle create comment form for a blog
+        toggleCreateComment: (state, action: PayloadAction<string>) => {
+            state.toggleCreateComment[action.payload] = !state.toggleCreateComment[action.payload];
         },
 
         setSortComment: (state, action: PayloadAction<SortMode>) => {
@@ -124,6 +119,79 @@ const aiSlice =  createSlice({
         toggleAutomation(state, action: PayloadAction<boolean>) {
             state.isAutomation = action.payload;
         },
+        
+        setSearchActive(state, action: PayloadAction<boolean>){
+            state.searchActive = action.payload
+        },
+
+        setCommentsForBlog: (state, action: PayloadAction<{ blogId: string, comments: Comments[] }>) => {
+            state.commentsByBlog[action.payload.blogId] = action.payload.comments;
+        },
+
+
+        // Add a single comment
+        addCommentForBlog: (state, action: PayloadAction<Comments>) => {
+            const blogId = action.payload.blogId;
+            if (!state.commentsByBlog[blogId]) {
+                state.commentsByBlog[blogId] = [];
+            }
+            state.commentsByBlog[blogId].push(action.payload);
+        },
+
+        updateCommentInBlog(state, action) {
+            const updated = action.payload;
+            const arr = state.commentsByBlog[updated.blogId] || [];
+            const idx = arr.findIndex(c => c.id === updated.id);
+            if (idx !== -1) arr[idx] = updated;
+        },
+
+        // delete a comment
+        deleteCommentFromBlog: (state, action: PayloadAction<{ blogId: string, commentId: number }>) => {
+            const { blogId, commentId } = action.payload;
+            if (state.commentsByBlog[blogId]) {
+                state.commentsByBlog[blogId] = state.commentsByBlog[blogId].filter(c => c.id !== commentId);
+            }        
+        },
+
+        updateCommentRatingOptimistic: (
+            state,
+            action: PayloadAction<{ blogId: string; commentId: number; newRating: number }>
+        ) => {
+            const { blogId, commentId, newRating } = action.payload;
+            const blogComments = state.commentsByBlog[blogId];
+
+            if (!blogComments) return;
+
+            const comment = blogComments.find(c => c.id === commentId);
+            if (comment) {
+                comment.rating = newRating;
+            }
+        },
+
+        setCreateComment: (
+            state, action: PayloadAction<{ blogId: string; value: string }>) => {
+            const { blogId, value } = action.payload;
+
+            if (!state.createComment[blogId]) {
+                state.createComment[blogId] = { comment: "" };
+            }
+
+            state.createComment[blogId].comment = value;
+        },
+
+
+        setAllBlogs: (state, action: PayloadAction<Blog[]>) => {
+            state.allBlogs = action.payload;
+            state.filteredBlogs = action.payload; // optionally reset filtered view
+        },
+
+        setAllComments: (state, action: PayloadAction<Comments[]>) => {
+            state.allComments = action.payload
+        },
+
+        setIsLoading:(state, action: PayloadAction<boolean>) => {
+            state.isLoading = action.payload
+        }
     }
 })
 
@@ -134,15 +202,23 @@ export const {
     setIsFuture,
     setSearchTerm,
     setCurrentPage,
-    setViewComments,
-    setRating,
+    toggleViewComments,
     incrementCommentRating,
-    setToggleCreateComment,
+    toggleCreateComment,
     setSortComment,
     setFilteredBlogs, 
     toggleAutomation,
     toggleFuture,
-    toggleImpactful
+    toggleImpactful,
+    setSearchActive,
+    setAllBlogs,
+    deleteCommentFromBlog,
+    setCommentsForBlog,
+    addCommentForBlog,
+    updateCommentRatingOptimistic,
+    setAllComments,
+    setCreateComment,
+    setIsLoading
 } = aiSlice.actions
 
 export default aiSlice.reducer

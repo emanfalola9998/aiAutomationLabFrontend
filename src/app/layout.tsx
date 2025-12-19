@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import NavMenu from "./NavMenu/NavMenu";
 import { Providers } from "./providers";
 import Footer from "./Footer/Footer";
 import Header from '../app/Header/Header'
-
+import LandingSpinner from '../Utils/LoadingSpinner'
 import { Lato } from 'next/font/google'
+import PageWrapper from "@/PageWrapper/PageWrapper";
+import { Suspense } from "react";
+import { AuthProvider } from '../context/AuthContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 
 const lato = Lato({
   subsets:["latin"],
@@ -38,19 +42,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="light">
-      <body className={`${lato.variable} ${geistMono.variable} flex flex-col antialiased bg-[#FAF3E1] text-black min-h-screen`}>
+      <body className={`${lato.variable} ${geistMono.variable} flex flex-col antialiased bg-white text-black min-h-screen`}>
         <Providers>
           {/* <NavMenu /> */}
           <Header />
-          <main className="grow lg:px-10">
-            {/* Load Font Awesome after page is interactive */}
-            <Script
-              src="https://kit.fontawesome.com/2db28a8488.js"
-              crossOrigin="anonymous"
-              strategy="afterInteractive"
-            />
-              {children}
-          </main>
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
+          <AuthProvider>
+          <PageWrapper>
+            <main className="">
+              {/* Load Font Awesome after page is interactive */}
+              <Script
+                src="https://kit.fontawesome.com/2db28a8488.js"
+                crossOrigin="anonymous"
+                strategy="afterInteractive"
+              />
+                <Suspense fallback={<LandingSpinner fullScreen/>}>
+                  {children}
+                </Suspense>
+                  
+            </main>
+          </PageWrapper>
+          </AuthProvider>
+          </GoogleOAuthProvider>
         </Providers>
         <div className=""><Footer /></div>
       </body>

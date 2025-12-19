@@ -10,15 +10,17 @@ import Search from "../Navbar/Search/Search";
 import notifications from '../assets/images/notification.png'
 import user from '../assets/images/user.png'
 import createIconImage from '../assets/images/edit.png'
+import { usePathname } from "next/navigation";
 
 
 
 export default function Header() {
     const [open, setOpen] = useState(false);
+    const pathname = usePathname()
 
     return (
         <>
-        <header className="w-full flex justify-between items-center px-6 py-4 border-b relative z-[100] ">
+        <header className={` ${pathname == '/' ? "bg-[#FAF3E1]" : "bg-white"} w-full flex justify-between items-center px-6 py-4 border-b relative z-[100]`}   >
             <div className="flex flex-row items-center gap-2">
                 {/* Left section */}
                 <div className="flex items-center gap-20">
@@ -52,10 +54,10 @@ export default function Header() {
             </div>
                 
             <div className="flex flex-row gap-3 ">
-                <div className='flex gap-1 justify-center cursor-pointer'>
+                <a href={'/Create'} className='flex gap-1 justify-center cursor-pointer'>
                     <Image src={createIconImage} alt="create"  className='w-5 h-5 '/> Create
-                </div>
-                <Image src={notifications} alt="notification bell Icon" className="w-5 h-5 cursor-pointer"/>
+                </a>
+                <a href={'/Notifications'}> <Image src={notifications} alt="notification bell Icon" className="w-5 h-5 cursor-pointer"/></a>
                 <Image src={user} alt="profile Icon" className="w-5 h-5 cursor-pointer" />
             </div>
             

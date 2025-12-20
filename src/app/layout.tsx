@@ -42,7 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="light">
-      <body className={`${lato.variable} ${geistMono.variable} flex flex-col antialiased bg-white text-black min-h-screen`}>
+      <body className={`${lato.variable} ${geistMono.variable} flex flex-col antialiased bg-gray-100 text-black min-h-screen`}>
         <Providers>
           {/* <NavMenu /> */}
           <Header />
@@ -56,10 +56,8 @@ export default function RootLayout({
                 crossOrigin="anonymous"
                 strategy="afterInteractive"
               />
-                <Suspense fallback={<LandingSpinner fullScreen/>}>
+              <script src="https://accounts.google.com/gsi/client" async></script>
                   {children}
-                </Suspense>
-                  
             </main>
           </PageWrapper>
           </AuthProvider>

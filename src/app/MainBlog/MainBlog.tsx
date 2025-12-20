@@ -21,6 +21,7 @@ import {Blog} from '../../../types'
 import TrendingTopics from '@/Utils/trendingTopics';
 import LandingSpinner from '../../Utils/LoadingSpinner'
 import { useFetchBlogs } from '@/Utils/useFetchBlogs';
+import BlogClient from '../blog/[id]/BlogClient';
 
 
 const MainBlog = () => {
@@ -47,6 +48,7 @@ const MainBlog = () => {
     if (!filteredBlogs){
       return <div>blogs not found</div>
     }
+
 
   return (
     <>

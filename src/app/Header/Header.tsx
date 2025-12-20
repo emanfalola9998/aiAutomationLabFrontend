@@ -20,7 +20,7 @@ export default function Header() {
 
     return (
         <>
-        <header className={` ${pathname == '/' ? "bg-[#FAF3E1]" : "bg-white"} w-full flex justify-between items-center px-6 py-4 border-b relative z-[100]`}   >
+        <header className={` ${pathname == '/' ? "bg-[#FAF3E1]" : "bg-gray-100"} w-full flex justify-between items-center px-6 py-4 border-b relative z-[100]`}   >
             <div className="flex flex-row items-center gap-2">
                 {/* Left section */}
                 <div className="flex items-center gap-20">
@@ -58,7 +58,7 @@ export default function Header() {
                     <Image src={createIconImage} alt="create"  className='w-5 h-5 '/> Create
                 </a>
                 <a href={'/Notifications'}> <Image src={notifications} alt="notification bell Icon" className="w-5 h-5 cursor-pointer"/></a>
-                <Image src={user} alt="profile Icon" className="w-5 h-5 cursor-pointer" />
+                <a href={'/dashboard'}><Image src={user} alt="profile Icon" className="w-5 h-5 cursor-pointer" /></a>
             </div>
             
 

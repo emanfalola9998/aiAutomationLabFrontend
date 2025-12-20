@@ -11,7 +11,7 @@ const Footer = () => {
     return (
         <>
             <div className="h-px bg-black w-full"></div>
-            <div className={` ${pathname == '/' ? "bg-[#FAF3E1]" : "bg-white"} flex justify-center gap-10 text-black items-center` }>
+            <div className={` ${pathname == '/' ? "bg-[#FAF3E1]" : "bg-gray-100"} flex justify-center gap-10 text-black items-center` }>
                 Copyright @2025 AIAutomationLab. AiAutomationLab is not responsible for the content of external sites.
                 <a className='' href="mailto:emmanuelfalola9998@gmail.com.com">
                     <Image 

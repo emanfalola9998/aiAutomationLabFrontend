@@ -7,7 +7,6 @@ import { Blog, Comments, CreateComment } from '../../../types';
 type SortMode = "rating" | "latest" | "oldest";
 
 
-
 export interface AiState {
     showNav: boolean
     isAutomation: boolean
@@ -24,7 +23,9 @@ export interface AiState {
     allBlogs: Blog[];          // all blogs from backend
     filteredBlogs: Blog[];     // filtered or searched blogs
     commentsByBlog: { [blogId: string]: Comments[] }; // comments per blog
-    isLoading: boolean
+    isLoading: boolean;
+    title: string;
+    content: string;
 }
 
 const initialState: AiState = {
@@ -52,7 +53,9 @@ const initialState: AiState = {
     searchActive: false,
     commentsByBlog: {},
     allBlogs: [],
-    isLoading: true
+    isLoading: true,
+    title: "",
+    content: ""
 }
 
 const aiSlice =  createSlice({
@@ -138,6 +141,12 @@ const aiSlice =  createSlice({
             state.commentsByBlog[blogId].push(action.payload);
         },
 
+        addBlog: (state, action: PayloadAction<Blog>) => {
+            // Simply add the new blog to the beginning of the array
+            state.allBlogs.unshift(action.payload);
+            state.filteredBlogs.unshift(action.payload);
+        },
+
         updateCommentInBlog(state, action) {
             const updated = action.payload;
             const arr = state.commentsByBlog[updated.blogId] || [];
@@ -191,6 +200,14 @@ const aiSlice =  createSlice({
 
         setIsLoading:(state, action: PayloadAction<boolean>) => {
             state.isLoading = action.payload
+        },
+
+        setTitle:(state, action: PayloadAction<string>) => {
+            state.title = action.payload
+        },
+
+        setContent:(state, action: PayloadAction<string>) => {
+            state.content = action.payload
         }
     }
 })
@@ -218,7 +235,10 @@ export const {
     updateCommentRatingOptimistic,
     setAllComments,
     setCreateComment,
-    setIsLoading
+    setIsLoading,
+    setContent,
+    setTitle,
+    addBlog
 } = aiSlice.actions
 
 export default aiSlice.reducer

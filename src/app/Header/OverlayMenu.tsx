@@ -73,7 +73,7 @@ export default function OverlayMenu({ isOpen, onClose }) {
                     {/* Blogs */}
                     <a href="/LiveBlogs" className={`flex flex-row gap-4 hover:text-blue-600 ${isLiveBlogs ? "text-black" : "text-gray-500"}`}>
                         <Image src={isLiveBlogs ? blogColoured : blogOutline} alt="" className="w-8" />
-                        Blog
+                        Blogs
                     </a>
                 </div>
             </div>

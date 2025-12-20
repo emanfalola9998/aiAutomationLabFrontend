@@ -4,7 +4,6 @@ import Link from 'next/link';
 import brainTransparentwithAi from '../app/assets/images/BrainWithAiTransparent.png'
 import { Button } from '@/components/ui/button';
 
-
 export default function Home() {
   return (
     // bg-linear-to-r from-[#4A70A9] to-black
@@ -18,7 +17,7 @@ export default function Home() {
           <h1 className="mt-4 font-bold text-xl mb-8 md:text-6xl bg-linear-to-r from-[#4A70A9] to-black bg-clip-text text-transparent ">Share your thoughts with us </h1>
           <p>Come to read, learn and discuss as a community</p>  
           
-          <Link href="/login" className="font-white font-bold cursor-pointer hover:text-yellow-600" >
+          <Link href="/LiveBlogs" className="font-white font-bold cursor-pointer hover:text-yellow-600" >
             <Button variant="default" className='mt-10 p-7 rounded-4xl font-bold cursor-pointer' >
               Join The Discussion
             </Button>

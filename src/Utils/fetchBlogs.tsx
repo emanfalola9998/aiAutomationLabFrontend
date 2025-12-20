@@ -8,6 +8,6 @@ export const fetchBlogs = () => async (dispatch: AppDispatch) => {
         const data = await res.json();
         dispatch(setAllBlogs(data));
     } catch (err) {
-        console.error(err);
+        console.error(err, "blogs not rendering");
     }
 };

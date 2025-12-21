@@ -16,7 +16,6 @@ export const createBlog = (blogData: CreateBlogData) =>
     async (dispatch: AppDispatch) => {
         try {
             dispatch(setIsLoading(true));
-            console.log('API_BASE:', process.env.NEXT_PUBLIC_API_BASE);
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/blogs`, {
                 method: "POST",

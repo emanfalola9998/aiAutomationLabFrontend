@@ -5,9 +5,7 @@ import aiDefaultImage from '../../assets/images/What-is-AI-how-does-it-work.png'
 import { Button } from '@/components/ui/button';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import {toggleViewComments,
-    toggleCreateComment, 
-    } from '@/store/features/counterSlice';
+import { setCommentView} from '@/store/features/counterSlice';
 import thumbsUp from '../../assets/images/thumbs-up (1).png';
 import { Textarea } from "@/components/ui/textarea"
 import AppDropdown from '@/customComponents/appDropdown';
@@ -23,10 +21,11 @@ import {
 import { Label } from "@/components/ui/label"
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { postCommentForBlog } from '@/Utils/fetchCommentsPerBlog';
+import { postCommentForBlog } from '@/Utils/postComment';
 import { AppDispatch } from '@/store/store';
 import { rateCommentForBlog } from '@/Utils/rateCommentForBlog';
 import TrendingTopics from '@/Utils/trendingTopics';
+import { useFetchComments } from '@/Utils/useFetchComments';
 
 
 
@@ -40,25 +39,22 @@ type Blog = {
 
 export default function BlogClient({ blog }: { blog: Blog }) {
 
-
-
     const [newCommentText, setNewCommentText] = useState('');
     const [newCommentUser, setNewCommentUser] = useState('Anonymous');
     const [newCommentRating, setNewCommentRating] = useState(0);
     const dispatchUseEffect = useDispatch<AppDispatch>()
 
-    
-    const viewComments = useSelector(
-        (state: RootState) => !!state.ai.viewComments[blog.id]
-    );
-
-    const viewCreateComment = useSelector(
-        (state: RootState) => !!state.ai.toggleCreateComment[blog.id]
-    );
+    const viewMode = useSelector((state: RootState) => state.ai.viewMode[blog.id] ?? "none");
+    const viewComments = viewMode === "comments";
+    const viewCreateComment = viewMode === "create";
 
     const sortMode = useSelector((state: RootState) => state.ai.sortComment);
     const dispatch = useDispatch();
-    const comments = useSelector((state: RootState) => state.ai.commentsByBlog[blog.id] || []);
+
+
+    const formattedComment = newCommentText.trim().charAt(0).toUpperCase() + newCommentText.trim().slice(1);
+
+    const allComments = useFetchComments(blog.id) 
 
 
     const handleSubmitComment = async (e: React.FormEvent) => {
@@ -67,15 +63,14 @@ export default function BlogClient({ blog }: { blog: Blog }) {
 
         await dispatchUseEffect(postCommentForBlog(blog.id, {
             blogId: blog.id,
-            user: newCommentUser,
-            comment: newCommentText,
+            username: newCommentUser,
+            comment: formattedComment,
             rating: newCommentRating,
         }));
 
         setNewCommentText('');
         setNewCommentRating(0);
-        dispatch(toggleCreateComment(blog.id)); // close form
-        dispatch(toggleViewComments(blog.id));   // open comments
+        dispatch(setCommentView({ id: blog.id, mode: "comments" }));
     };
 
 
@@ -86,14 +81,14 @@ export default function BlogClient({ blog }: { blog: Blog }) {
 
 
 
-
-    const sortedComments = [...comments].sort((a, b) => {
+    const sortedComments = [...allComments].sort((a, b) => {
         if (sortMode === "rating") return b.rating - a.rating;
         if (sortMode === "latest") return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
         return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
     });
 
     const animationKey = `${viewComments}-${viewCreateComment}`;
+
 
 
     return (
@@ -115,7 +110,11 @@ export default function BlogClient({ blog }: { blog: Blog }) {
 
                 <div className=" flex flex-col gap-2 md:flex-row md:gap-0 justify-start mt-4">
                     <hr />
-                    <Button onClick={() => dispatch(toggleCreateComment(blog.id))}  variant="custom" className=' cursor-pointer mr-4 w-40 font-bold my-2' >
+                    <Button 
+                        onClick={() => {
+                            dispatch(setCommentView({ id: blog.id, mode: "create" }));
+                        }}
+                    variant="custom" className=' cursor-pointer mr-4 w-40 font-bold my-2' >
                         {viewCreateComment ? "Close Comment" : "Create Comment"}
                     </Button>
 
@@ -126,7 +125,11 @@ export default function BlogClient({ blog }: { blog: Blog }) {
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.3 }}
                         >
-                            <Button onClick={() => dispatch(toggleViewComments(blog.id))} variant="custom" className="cursor-pointer mr-4 w-40 font-bold my-2">
+                            <Button 
+                                onClick={() => {
+                                    dispatch(setCommentView({ id: blog.id, mode: "comments" }));
+                                }}
+                                    variant="custom" className="cursor-pointer mr-4 w-40 font-bold my-2">
                                 {viewComments ? "Hide Comments" : "View Comments"}
                             </Button>
                             {viewComments && <AppDropdown  />}
@@ -135,8 +138,8 @@ export default function BlogClient({ blog }: { blog: Blog }) {
                     
                 </div >
                 <div className={`flex flex-col gap-2 transition-all duration-500 ease-out
-                    ${viewComments ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} >
-                    {!toggleCreateComment && viewComments && sortedComments.map(comment => 
+                    ${!viewCreateComment && viewComments ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} >
+                    { !viewCreateComment && viewComments && sortedComments.map(comment => 
                         <div className='bg-[#FAF3E1] text-black flex flex-col gap-6 rounded-xl border p-6 shadow-sm w-full max-w-sm mt-4' key={comment.id}> 
                             <div className='flex flex-row'><Image src={user} alt="user" className='w-7'/><span className='text-gray-400 ml-2'>{new Date(comment.timestamp).toLocaleString()}</span></div>
                             <div>{comment.comment}</div>
@@ -168,8 +171,8 @@ export default function BlogClient({ blog }: { blog: Blog }) {
                                 <CardTitle>Create Comment</CardTitle>
                             </CardHeader>
 
-                            <CardContent>
-                                <form onSubmit={handleSubmitComment}>
+                            <form onSubmit={handleSubmitComment}>
+                                <CardContent>
                                     <div className="flex flex-col gap-6">
                                         <div className="grid gap-2">
                                             <Label htmlFor="comment">Comment</Label>
@@ -182,18 +185,18 @@ export default function BlogClient({ blog }: { blog: Blog }) {
                                             />
                                         </div>
                                     </div>
-                                </form>
-                            </CardContent>
+                                </CardContent>
 
-                            <CardFooter className="flex-col gap-2">
-                                <Button
-                                    variant="custom"
-                                    type="submit"
-                                    className="border-2 border-black hover:black"
-                                >
-                                    Submit
-                                </Button>
-                            </CardFooter>
+                                <CardFooter className="flex-col gap-2">
+                                    <Button
+                                        variant="custom"
+                                        type="submit"
+                                        className="border-2 border-black hover:black cursor-pointer"
+                                    >
+                                        Submit
+                                    </Button>
+                                </CardFooter>
+                            </form>
                         </Card>
                     )}
                 </div>

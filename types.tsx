@@ -12,7 +12,7 @@ export type Blog = {
 export type Comments = {
     blogId: string
     id: number,
-    user: string,
+    username: string,
     comment: string,
     timestamp: string,
     rating: number

@@ -10,6 +10,7 @@ import { setIsLoading } from "@/store/features/counterSlice";
         
         useEffect(() => {
             if (allBlogs.length === 0) {
+                dispatch(setIsLoading(true))
             dispatch(fetchBlogs()).finally(() => dispatch(setIsLoading(false)));
             } else {
             dispatch(setIsLoading(false));

@@ -11,6 +11,13 @@ import PageWrapper from "@/PageWrapper/PageWrapper";
 import { Suspense } from "react";
 import { AuthProvider } from '../context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+// app/layout.tsx
+import { Crimson_Pro } from 'next/font/google';
+
+const crimsonPro = Crimson_Pro({ 
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+});
 
 
 const lato = Lato({
@@ -18,6 +25,8 @@ const lato = Lato({
   variable: "--font-lato",
   weight: "400"
 })
+
+
 
 
 const geistSans = Geist({

@@ -1,15 +1,50 @@
 // Utils/postComment.ts
 import { AppDispatch } from "@/store/store";
-import { addCommentForBlog } from "@/store/features/counterSlice";
+import { setCommentsForBlog, setIsLoading } from "@/store/features/counterSlice";
+import { Comments } from "../../types";
+import { AuthService } from "@/lib/auth";
 
 export const postCommentForBlog = (blogId: string, comment: any) =>
     async (dispatch: AppDispatch) => {
-        const res = await fetch(`/blogs/${blogId}/comments`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(comment),
-        });
+        try {
+            dispatch(setIsLoading(true));
+            
+            console.log('Posting comment to:', `${process.env.NEXT_PUBLIC_API_BASE}/api/blogs/${blogId}/comments`);
+            console.log('Comment data:', comment);
+            
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/blogs/${blogId}/comments`, {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${AuthService.getToken()}`
+                },
+                body: JSON.stringify(comment),
+            });
 
-        const newComment = await res.json();
-        dispatch(addCommentForBlog(newComment));
+            console.log('Response status:', res.status);
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error('Error response:', errorText);
+                throw new Error('Failed to create comment');
+            }
+
+            const newComment = await res.json();
+            console.log('New comment created:', newComment);
+
+            // Fetch all comments
+            const allCommentsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/blogs/${blogId}/comments`);
+            const allComments: Comments[] = await allCommentsResponse.json();
+            console.log('All comments fetched:', allComments);
+
+            // Update Redux
+            dispatch(setCommentsForBlog({ blogId, comments: allComments }));
+
+            return newComment;
+        } catch (error) {
+            console.error("Error creating comment: ", error);
+            throw error;
+        } finally {
+            dispatch(setIsLoading(false));
+        }
     };

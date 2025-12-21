@@ -6,6 +6,9 @@ import { Blog, Comments, CreateComment } from '../../../types';
 
 type SortMode = "rating" | "latest" | "oldest";
 
+type CommentViewState = "none" | "comments" | "create";
+
+
 
 export interface AiState {
     showNav: boolean
@@ -14,10 +17,7 @@ export interface AiState {
     isFuture: boolean
     searchTerm: string
     currentPage: number
-    viewComments: { [blogId: string]: boolean };
-    allComments: Comments[]
     createComment: CreateComment
-    toggleCreateComment: { [blogId: string]: boolean };
     sortComment: SortMode,
     searchActive: boolean,
     allBlogs: Blog[];          // all blogs from backend
@@ -26,6 +26,8 @@ export interface AiState {
     isLoading: boolean;
     title: string;
     content: string;
+    viewMode: { [blogId: string]: CommentViewState };
+
 }
 
 const initialState: AiState = {
@@ -35,10 +37,7 @@ const initialState: AiState = {
     isFuture: false,
     searchTerm: '',
     currentPage: 1,
-    viewComments: {},
-    allComments: [],
     createComment: {},
-    toggleCreateComment: {},
     sortComment: "rating",
     filteredBlogs: [{
         id: '',
@@ -55,7 +54,9 @@ const initialState: AiState = {
     allBlogs: [],
     isLoading: true,
     title: "",
-    content: ""
+    content: "",
+    viewMode: {},
+
 }
 
 const aiSlice =  createSlice({
@@ -86,21 +87,16 @@ const aiSlice =  createSlice({
             state.currentPage = action.payload
         },
 
-        // Toggle view comments for a blog
-        toggleViewComments: (state, action: PayloadAction<string>) => {
-            state.viewComments[action.payload] = !state.viewComments[action.payload];
-        },
-
         // Increment comment rating
         incrementCommentRating: (state, action: PayloadAction<{ blogId: string; commentId: number }>) => {
             const { blogId, commentId } = action.payload;
             const comment = state.commentsByBlog[blogId]?.find(c => c.id === commentId);
             if (comment) comment.rating = (comment.rating || 0) + 1;
         },
-        
-        // Toggle create comment form for a blog
-        toggleCreateComment: (state, action: PayloadAction<string>) => {
-            state.toggleCreateComment[action.payload] = !state.toggleCreateComment[action.payload];
+
+        setCommentView: (state, action: PayloadAction<{ id: string; mode: "comments" | "create" }>) => {
+            const { id, mode } = action.payload;
+            state.viewMode[id] = state.viewMode[id] === mode ? "none" : mode;
         },
 
         setSortComment: (state, action: PayloadAction<SortMode>) => {
@@ -194,9 +190,6 @@ const aiSlice =  createSlice({
             state.filteredBlogs = action.payload; // optionally reset filtered view
         },
 
-        setAllComments: (state, action: PayloadAction<Comments[]>) => {
-            state.allComments = action.payload
-        },
 
         setIsLoading:(state, action: PayloadAction<boolean>) => {
             state.isLoading = action.payload
@@ -219,9 +212,7 @@ export const {
     setIsFuture,
     setSearchTerm,
     setCurrentPage,
-    toggleViewComments,
     incrementCommentRating,
-    toggleCreateComment,
     setSortComment,
     setFilteredBlogs, 
     toggleAutomation,
@@ -233,12 +224,12 @@ export const {
     setCommentsForBlog,
     addCommentForBlog,
     updateCommentRatingOptimistic,
-    setAllComments,
     setCreateComment,
     setIsLoading,
     setContent,
     setTitle,
-    addBlog
+    addBlog,
+    setCommentView
 } = aiSlice.actions
 
 export default aiSlice.reducer

@@ -40,7 +40,7 @@ const template = () => {
           </div>
             <div className="border-2 lg:border border-gray-400  mx-4"></div>
 
-            <div className='flex items-center'>
+            <div className='flex items-center justify-center'>
             
             <a href="https://www.Tisume.com" target="_blank" rel="noopener noreferrer">
               <Image
@@ -130,7 +130,7 @@ const template = () => {
             <Image 
                 src={emailLink}
                 alt="email-link"
-                className='w-10'
+                className='w-6'
             />
           </a>
         </div>

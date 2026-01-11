@@ -3,14 +3,15 @@ import { AppDispatch } from "@/store/store";
 import { setCommentsForBlog, setIsLoading } from "@/store/features/counterSlice";
 import { Comments } from "../../types";
 import { AuthService } from "@/lib/auth";
+import toast from "react-hot-toast";
+
 
 export const postCommentForBlog = (blogId: string, comment: any) =>
     async (dispatch: AppDispatch) => {
         try {
             dispatch(setIsLoading(true));
             
-            console.log('Posting comment to:', `${process.env.NEXT_PUBLIC_API_BASE}/api/blogs/${blogId}/comments`);
-            console.log('Comment data:', comment);
+
             
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/blogs/${blogId}/comments`, {
                 method: "POST",
@@ -21,7 +22,6 @@ export const postCommentForBlog = (blogId: string, comment: any) =>
                 body: JSON.stringify(comment),
             });
 
-            console.log('Response status:', res.status);
 
             if (!res.ok) {
                 const errorText = await res.text();
@@ -30,18 +30,19 @@ export const postCommentForBlog = (blogId: string, comment: any) =>
             }
 
             const newComment = await res.json();
-            console.log('New comment created:', newComment);
 
             // Fetch all comments
             const allCommentsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/blogs/${blogId}/comments`);
             const allComments: Comments[] = await allCommentsResponse.json();
-            console.log('All comments fetched:', allComments);
 
             // Update Redux
             dispatch(setCommentsForBlog({ blogId, comments: allComments }));
+            toast.success("Comment Created ❤️")
+
 
             return newComment;
         } catch (error) {
+            toast.error("Failed to create comment");
             console.error("Error creating comment: ", error);
             throw error;
         } finally {

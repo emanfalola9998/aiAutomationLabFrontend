@@ -13,6 +13,8 @@ import { AuthProvider } from '../context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 // app/layout.tsx
 import { Crimson_Pro } from 'next/font/google';
+import { Toaster } from "react-hot-toast";
+
 
 const crimsonPro = Crimson_Pro({ 
   subsets: ['latin'],
@@ -67,6 +69,7 @@ export default function RootLayout({
               />
               <script src="https://accounts.google.com/gsi/client" async></script>
                   {children}
+                  <Toaster position="top-right" />
             </main>
           </PageWrapper>
           </AuthProvider>

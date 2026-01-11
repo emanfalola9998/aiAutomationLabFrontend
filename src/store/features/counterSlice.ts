@@ -6,7 +6,7 @@ import { Blog, Comments, CreateComment } from '../../../types';
 
 type SortMode = "rating" | "latest" | "oldest";
 
-type CommentViewState = "none" | "comments" | "create";
+type CommentViewState = "comments" | "none" | "create";
 
 
 
@@ -201,7 +201,24 @@ const aiSlice =  createSlice({
 
         setContent:(state, action: PayloadAction<string>) => {
             state.content = action.payload
-        }
+        },
+
+        updateBlogLikes: (state, action: PayloadAction<{ blogId: string; likes: number }>) => {
+            const { blogId, likes } = action.payload; // getting blog's id and likes from the client
+            
+            // Update in allBlogs
+            const blogIndex = state.allBlogs.findIndex(blog => blog.id === blogId); // finding the specific blog we are looking for
+            if (blogIndex !== -1) { 
+                state.allBlogs[blogIndex].likes = likes; // If we find the index, index allblogs and update the blog we want likes
+            }
+            
+            // Update in filteredBlogs
+            const filteredIndex = state.filteredBlogs.findIndex(blog => blog.id === blogId);
+            if (filteredIndex !== -1) {
+                state.filteredBlogs[filteredIndex].likes = likes;
+            }
+        },
+
     }
 })
 
@@ -229,7 +246,8 @@ export const {
     setContent,
     setTitle,
     addBlog,
-    setCommentView
+    setCommentView,
+    updateBlogLikes
 } = aiSlice.actions
 
 export default aiSlice.reducer

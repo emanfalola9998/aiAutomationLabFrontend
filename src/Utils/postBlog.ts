@@ -3,6 +3,7 @@
 import { AppDispatch } from "@/store/store";
 import { addBlog, setAllBlogs, setIsLoading } from "@/store/features/counterSlice";
 import { AuthService } from "@/lib/auth";
+import toast from "react-hot-toast";
 
 export interface CreateBlogData {
     title: string;
@@ -39,9 +40,11 @@ export const createBlog = (blogData: CreateBlogData) =>
             
             // Update Redux with all blogs from backend
             dispatch(setAllBlogs(allBlogs));
+            toast.success("Blog created successfully");
             
             return newBlog; // Return the created blog
         } catch (error) {
+            toast.error("Failed to create blog");
             console.error('Error creating blog:', error);
             throw error;
         } finally {

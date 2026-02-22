@@ -9,7 +9,7 @@ import { setCommentView} from '@/store/features/counterSlice';
 import thumbsUp from '../../assets/images/thumbs-up (1).png';
 import { Textarea } from "@/components/ui/textarea"
 import AppDropdown from '@/customComponents/appDropdown';
-import user from '@/app/assets/images/user.png'
+import userImage from '@/app/assets/images/user.png'
 
 import {
     Card,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { postCommentForBlog } from '@/Utils/postComment';
 import { AppDispatch } from '@/store/store';
 import { rateCommentForBlog } from '@/Utils/rateCommentForBlog';
@@ -29,6 +29,11 @@ import { useFetchComments } from '@/Utils/useFetchComments';
 import comment from "../../assets/images/comment.png"
 import heart from "../../assets/images/heart.png"
 import { likeBlog } from '@/Utils/likeBlog';
+import { useAuth } from '@/context/AuthContext';
+import { AuthService } from '@/lib/auth';
+import toast from 'react-hot-toast';
+import router from 'next/router';
+
 
 
 type Blog = {
@@ -41,16 +46,21 @@ type Blog = {
 };
 
 export default function BlogClient({ blog }: { blog: Blog }) {
+    const { isAuthenticated, user } = useAuth();
+
+
 
     const [isLiking, setIsLiking] = useState(false);
+    const [isLikingComment, setIsLikingComment] = useState(false);
+
     const [newCommentText, setNewCommentText] = useState('');
     const [newCommentUser, setNewCommentUser] = useState('Anonymous');
     const [newCommentRating, setNewCommentRating] = useState(0);
     const dispatchUseEffect = useDispatch<AppDispatch>()
 
-    const viewMode = useSelector((state: RootState) => state.ai.viewMode[blog.id] || "comments");
-    const viewComments = viewMode === "comments";
-    const viewCreateComment = viewMode === "create";
+    // const viewMode = useSelector((state: RootState) => state.ai.viewMode[blog.id] || "comments");
+    // const viewComments = viewMode === "comments";
+    // const viewCreateComment = viewMode === "create";
 
     const sortMode = useSelector((state: RootState) => state.ai.sortComment);
     const dispatch = useDispatch();
@@ -97,29 +107,58 @@ export default function BlogClient({ blog }: { blog: Blog }) {
         return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
     });
 
-    const animationKey = `${viewComments}-${viewCreateComment}`;
+    // const animationKey = `${viewComments}-${viewCreateComment}`;
 
     const handleLike = async () => {
-        if (isLiking) return; // Prevent double-clicking
-        
-        setIsLiking(true);
+        if (!isAuthenticated) {
+            toast.error('Please login to like blogs', {
+                duration: 4000,
+            });
+            // Optionally redirect to login
+            setTimeout(() => {
+                router.push('/login');
+            }, 1500);
+            return;
+        }
+
         try {
-            await dispatchUseEffect(likeBlog(blog.id));
-        } catch (error) {
-            console.error('Failed to like blog:', error);
-        } finally {
+            setIsLiking(true);
+            dispatchUseEffect(likeBlog(blog.id));
+        } catch (error: any) {
+            if (error.message === 'Not authenticated') {
+                toast.error('Session expired. Redirecting to login...');
+                setTimeout(() => {
+                    router.push('/login');
+                }, 1500);
+            }
+        }
+        finally{
             setIsLiking(false);
         }
     };
+
+    const handleCommentLike = async (commentId: number) => {
+        if (isLikingComment) return // Prevent double-clickling
+
+        setIsLikingComment(true)
+        try {
+            await dispatchUseEffect(rateCommentForBlog(blog.id, commentId))
+        } catch (error) {
+            console.error("Failed to like blog comment")
+        }
+        finally {
+            setIsLikingComment(false)
+        }
+    }
 
 
 
     return (
         <>
-            <div className="p-10 max-w-full  mx-auto flex flex-col lg:flex-row lg:justify-evenly ">
-            <div className='lg:w-1/2 max-w-xl'>
+            <div className="p-10 max-w-full mx-auto flex flex-col lg:flex-row justify-center items-start gap-50 ">
+            <div className='lg:w-1/2 '>
                 <h1 className="text-4xl font-bold mb-6">{blog.title}</h1>
-                <div className='relative w-full max-w-xl h-64 '>
+                <div className='relative w-full max-w-xl h-64  mb-6'>
                     <Image
                         src={blog.image || aiDefaultImage}
                         alt={blog.title}
@@ -130,23 +169,36 @@ export default function BlogClient({ blog }: { blog: Blog }) {
                 
                 <p className="text-lg leading-relaxed mt-4">{blog.content}</p>
 
-                <div className="border-y-4 border-gray-200 flex flex-row gap-5 justify-end ">
-                    <div className='flex flex-row gap-1'><Image className='w-5 h-auto' src={comment} alt="comment icon"/>{allComments.length || 0}</div>
-                    <button className='gap-1 flex flex-row w-5 h-auto mr-10' onClick={handleLike}><Image className='w-5 h-auto cursor-pointer' src={heart} alt="heart icon" /> {likeCount}</button>
+                <div className=" flex flex-row gap-5 justify-start mt-2 ">
+                    {/* <div className='flex flex-row gap-1'><Image className='w-5 h-auto' src={comment} alt="comment icon"/>{allComments.length || 0}</div> */}
+                    {isAuthenticated ? (
+                        <button 
+                            onClick={handleLike} 
+                            className="flex items-center gap-1 hover:text-red-500 transition"
+                        >
+                            <Image src={heart} alt="heart icon" className='w-5 h-auto'/>
+                            <span className='text-s'>{likeCount}</span>
+                        </button>
+                    ) : (
+                        <div className="flex items-center gap-1 text-gray-400">
+                            <Image src={heart} alt="heart icon" className='w-5 h-auto'/>
+                            <span className='text-xs'>{likeCount}</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className=" flex flex-col gap-2 md:flex-row md:gap-0 justify-start mt-4">
                     <hr />
-                    <Button 
+                    {/* <Button 
                         onClick={() => {
                             dispatch(setCommentView({ id: blog.id, mode: "create" }));
                         }}
                     variant="custom" className=' cursor-pointer mr-4 w-40 font-bold my-2' >
                         {viewCreateComment ? "Close Comment" : "Create Comment"}
-                    </Button>
+                    </Button> */}
                     
 
-
+{/* 
                     <AnimatePresence key={animationKey}>
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
@@ -163,23 +215,40 @@ export default function BlogClient({ blog }: { blog: Blog }) {
                             </Button>
                             {viewComments && <AppDropdown  />}
                         </motion.div>
-                    </AnimatePresence>
+                    </AnimatePresence> */}
                     
-                </div >
-                <div className={`flex flex-col gap-2 transition-all duration-500 ease-out
-                    ${!viewCreateComment && viewComments ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} >
-                    { !viewCreateComment && viewComments && sortedComments.map(comment => 
-                        <div className='bg-[#FAF3E1] text-black flex flex-col gap-6 rounded-xl border p-6 shadow-sm w-full max-w-sm mt-4' key={comment.id}> 
-                            <div className='flex flex-row'><Image src={user} alt="user" className='w-7'/><span className='text-gray-400 ml-2'>{new Date(comment.timestamp).toLocaleString()}</span></div>
+                </div>
+
+                {/* Create comment */}
+                <div className="p-10 animate-fadeInList lg:w-1/2 flex flex-row justify-between items-center border-b shadow-sm border-gray-300/40 md:p-5 md:my-8">
+                        <form onSubmit={handleSubmitComment} className='flex flex-col gap-4 w-full'>
+                            <div className='flex flex-row gap-2'><Image src={userImage} alt="user" className='w-7'/>{user?.name}</div>
+                            <input
+                                className='bg-gray-300 text-black rounded-lg p-4 w-full'
+                                placeholder='What are your thoughts on this post?'
+                                value={newCommentText}
+                                onChange={(e) => setNewCommentText(e.target.value)}
+                            />
+                            <div className='flex justify-end'>
+                                <Button type="submit" variant="custom" className='cursor-pointer w-28 font-bold' disabled={!newCommentText.trim()}>
+                                    Submit
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                {/* comment section */}
+                {sortedComments.length > 0 && <div className='mt-10 text-2xl '><h1>Responses</h1></div>}
+                <div  >
+                    {sortedComments.map(comment => 
+                        <div className=' text-black flex flex-col gap-6 rounded-xl border p-6 shadow-sm lg:w-1/2 mt-4' key={comment.id}> 
+                            <div className='flex flex-row'><Image src={userImage} alt="user" className='w-7'/><span className='text-gray-400 ml-2'>{new Date(comment.timestamp).toLocaleString()}</span></div>
                             <div>{comment.comment}</div>
                             
-                            <div className='flex flex-row'>
-                                <button onClick={() => handleRatings(comment.id)}>
-                                    <Image
-                                    className='w-15 h-10 cursor-pointer'
-                                    src={thumbsUp} // should trigger a post request when rating is changed
-                                    alt="Thumbs Up"
-                                    />    
+                            <div className='flex flex-row gap-1'>
+                                <button onClick={() => handleCommentLike(comment.id)}>
+                                <Image src={heart} alt="heart icon" className='w-5 cursor-pointer  h-auto'/>
+                                {/* <span className='text-xs'>{likeCount}</span> */}
                                 </button>
                                 <div>{comment.rating || 0}</div>
                             </div> 
@@ -187,92 +256,11 @@ export default function BlogClient({ blog }: { blog: Blog }) {
                     )}
 
                 </div>
-                    <div className={`
-                        transition-all duration-500 ease-out
-                        ${viewCreateComment && !viewComments 
-                            ? "opacity-100 translate-y-0 max-h-[800px]" 
-                            : "opacity-0 translate-y-4 max-h-0 overflow-hidden"
-                        }
-                    `}>
-                        {viewCreateComment && !viewComments ? (
-                            allComments.length > 0 ? (
-                                // There are comments - show the create comment form
-                                <Card className="w-full max-w-sm bg-[#FAF3E1] mt-4 text-black">
-                                    <CardHeader>
-                                        <CardTitle>Create Comment</CardTitle>
-                                    </CardHeader>
-
-                                    <form onSubmit={handleSubmitComment}>
-                                        <CardContent>
-                                            <div className="flex flex-col gap-6">
-                                                <div className="grid gap-2">
-                                                    <Label htmlFor="comment">Comment</Label>
-                                                    <Textarea
-                                                        id="comment"
-                                                        placeholder="Type comment here..."
-                                                        value={newCommentText}
-                                                        onChange={(e) => setNewCommentText(e.target.value)}
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-
-                                        <CardFooter className="flex-col gap-2">
-                                            <Button
-                                                variant="custom"
-                                                type="submit"
-                                                className="border-2 border-black hover:black cursor-pointer"
-                                            >
-                                                Submit
-                                            </Button>
-                                        </CardFooter>
-                                    </form>
-                                </Card>
-                            ) : (
-                                // No comments - show "Be the first" message with form
-                                <div>
-                                    <h1 className="text-xl font-semibold mb-4 text-gray-700">Be the first to comment!</h1>
-                                    <Card className="w-full max-w-sm bg-[#FAF3E1] mt-4 text-black">
-                                        <CardHeader>
-                                            <CardTitle>Create Comment</CardTitle>
-                                        </CardHeader>
-
-                                        <form onSubmit={handleSubmitComment}>
-                                            <CardContent>
-                                                <div className="flex flex-col gap-6">
-                                                    <div className="grid gap-2">
-                                                        <Label htmlFor="comment">Comment</Label>
-                                                        <Textarea
-                                                            id="comment"
-                                                            placeholder="Type comment here..."
-                                                            value={newCommentText}
-                                                            onChange={(e) => setNewCommentText(e.target.value)}
-                                                            required
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-
-                                            <CardFooter className="flex-col gap-2">
-                                                <Button
-                                                    variant="custom"
-                                                    type="submit"
-                                                    className="border-2 border-black hover:black cursor-pointer"
-                                                >
-                                                    Submit
-                                                </Button>
-                                            </CardFooter>
-                                        </form>
-                                    </Card>
-                                </div>
-                            )
-                        ) : null}
-                    </div>
+                    
                 
             </div>
-
-            <div className='flex flex-col gap-4 mt-8  ' >
+                    
+            <div className='flex flex- gap-4 mt-8  ' >
                 <TrendingTopics />
                 
             </div>

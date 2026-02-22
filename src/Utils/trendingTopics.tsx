@@ -19,13 +19,13 @@ const trendingTopics = () => {
     return (
         <>
             <div className='flex flex-col gap-4'>
-                <h1 className='mb-2 text-2xl '> Trending Topics</h1>
+                <h1 className='mb-2 text-lg font-semibold'> Trending Topics</h1>
                 {sortedBlogs.slice(0, 3).map(blog => <div key={blog.id}>
-                    <Link href={`/blog/${blog.id}`} className='flex flex-col gap-2  text-black border-b  p-4'>
-                        <div className='flex flex-row gap-1 font-bold'><Image src={user} alt="user icon image" className='w-6 ' /><span className='text-sm'>{blog?.author?.toString() ? blog.author.charAt(0).toUpperCase() + blog.author.slice(1) : "Unknown author"}</span></div>
-                        <h1 className='mb-2 font-bold'> {blog.title}</h1>
+                    <Link href={`/blog/${blog.id}`} className='flex flex-col gap-2 text-black border-b p-4'>
+                        <div className='flex flex-row gap-1 font-bold'><Image src={user} alt="user icon image" className='w-6' /><span className='text-sm'>{blog?.author?.toString() ? blog.author.charAt(0).toUpperCase() + blog.author.slice(1) : "Unknown author"}</span></div>
+                        <h1 className='mb-1 font-bold text-base'> {blog.title}</h1>
                         <div className='flex flex-row gap-3 items-center'>
-                            <div>{formatDateWithConditionalYear(blog.datePublished)}</div>
+                            <div className='text-sm'>{formatDateWithConditionalYear(blog.datePublished)}</div>
                             <div className='flex flex-row gap-1'><Image src={heart} alt="heart icon" className='w-4 h-4' /> <span className='text-xs'>{blog.likes}</span> </div>
                         </div>
                     </Link>

@@ -10,7 +10,7 @@ export interface CreateBlogData {
     content: string;
     image: string;
     tags: string;
-    author: string | undefined
+    authorName: string | undefined
 }
 
 export const createBlog = (blogData: CreateBlogData) =>
@@ -18,13 +18,14 @@ export const createBlog = (blogData: CreateBlogData) =>
         try {
             dispatch(setIsLoading(true));
 
+            console.log('POST body sent to backend:', JSON.stringify(blogData));
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/blogs`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${AuthService.getToken()}` // Include auth token
                 },
-                body: JSON.stringify(blogData),
+                body: JSON.stringify(blogData), // create Json
             });
 
 

@@ -3,10 +3,24 @@ export type Blog = {
     title: string,
     content: string,
     image: string,
-    tags: string,
+    tags?: string,
     author: string,
+    authorName: string,
     datePublished: string,
     likes: number
+}
+
+export interface Notification {
+  id: number;
+  userId: string;
+  notificationType: 'blog_like' | 'comment_like' | 'new_comment';
+  message: string;
+  link: string | null;
+  isRead: boolean;
+  createdAt: string;
+  triggeredByUserId: string | null;
+  relatedBlogId: string | null;
+  relatedCommentId: number | null;
 }
 
 export type Comments = {

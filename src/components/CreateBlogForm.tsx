@@ -14,9 +14,20 @@ export default function CreateBlogPage() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [image, setImage] = useState('');
+    const [imageMode, setImageMode] = useState<'url' | 'upload'>('url');
     const [tags, setTags] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
 
     const { user } = useAuth(); 
 
@@ -35,20 +46,16 @@ export default function CreateBlogPage() {
         return;
         }
 
-        if (!tags) {
-            setError('Please select a tag');
-        return;
-        }
-
         setLoading(true);
+        console.log('Submitting blog with user:', user);
 
         try {
         await dispatch(createBlog({
             title: formattedTitle,
             content: formattedContent,
             image: image.trim(),
-            tags: tags,
-            author: user?.name
+            tags: tags || 'General',
+            authorName: user?.name
         }));
         
         // Reset form and redirect
@@ -88,21 +95,53 @@ export default function CreateBlogPage() {
                 onChange={(e) => setTags(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                 >
-                <option value="">Select a tag...</option>
-                <option value="AI">AI</option>
+                <option value="">General</option>
+                <option value="Impactful">Impactful</option>
                 <option value="Automation">Automation</option>
                 <option value="Future">Future</option>
                 </select>
             </div>
 
-            {/* Image URL Input (Optional) */}
-            <input
-                type="url"
-                placeholder="Image URL (optional)"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                className="w-full text-lg bg-transparent focus:outline-none placeholder-gray-400 mb-6 pb-2 border-b border-gray-200"
-            />
+            {/* Image Input (URL or Upload) */}
+            <div className="mb-6">
+                <div className="flex gap-4 mb-3 text-sm">
+                    <button
+                        type="button"
+                        onClick={() => { setImageMode('url'); setImage(''); }}
+                        className={`pb-1 border-b-2 ${imageMode === 'url' ? 'border-black font-semibold' : 'border-transparent text-gray-400'}`}
+                    >
+                        Image URL
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => { setImageMode('upload'); setImage(''); }}
+                        className={`pb-1 border-b-2 ${imageMode === 'upload' ? 'border-black font-semibold' : 'border-transparent text-gray-400'}`}
+                    >
+                        Upload from computer
+                    </button>
+                </div>
+
+                {imageMode === 'url' ? (
+                    <input
+                        type="url"
+                        placeholder="Image URL (optional)"
+                        value={image}
+                        onChange={(e) => setImage(e.target.value)}
+                        className="w-full text-lg bg-transparent focus:outline-none placeholder-gray-400 pb-2 border-b border-gray-200"
+                    />
+                ) : (
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+                    />
+                )}
+
+                {image && (
+                    <img src={image} alt="preview" className="mt-3 h-40 object-cover rounded-lg" />
+                )}
+            </div>
 
             {/* Content Textarea */}
             <textarea

@@ -36,6 +36,7 @@ export const postCommentForBlog = (blogId: string, comment: any) =>
             const allComments: Comments[] = await allCommentsResponse.json();
 
             // Update Redux
+            // its blogid, comments: allcomments because blog id is the key and comments is the value, so we want to update the comments for that blogid with allcomments
             dispatch(setCommentsForBlog({ blogId, comments: allComments }));
             toast.success("Comment Created ❤️")
 

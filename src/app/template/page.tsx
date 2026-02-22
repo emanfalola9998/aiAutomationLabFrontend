@@ -126,7 +126,7 @@ const template = () => {
         <div className='flex flex-row justify-center gap-4'>
           <p>If you would like to get in contact for possible automation needs please click the Message Icon 
           </p>
-            <a className='' href="mailto:emmanuelfalola9998@gmail.com.com">
+            <a className='' href="mailto:emmanuel.m.a.falola@gmail.com">
             <Image 
                 src={emailLink}
                 alt="email-link"

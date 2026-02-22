@@ -54,11 +54,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="light">
       <body className={`${lato.variable} ${geistMono.variable} flex flex-col antialiased bg-gray-100 text-black min-h-screen`}>
+        <AuthProvider>
         <Providers>
-          {/* <NavMenu /> */}
           <Header />
           <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
-          <AuthProvider>
           <PageWrapper>
             <main className="">
               {/* Load Font Awesome after page is interactive */}
@@ -72,9 +71,10 @@ export default function RootLayout({
                   <Toaster position="top-right" />
             </main>
           </PageWrapper>
-          </AuthProvider>
           </GoogleOAuthProvider>
         </Providers>
+        </AuthProvider>
+
         <div className=""><Footer /></div>
       </body>
     </html>

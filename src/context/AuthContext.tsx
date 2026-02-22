@@ -17,11 +17,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const token = AuthService.getToken();
         if (token) {
             try {
-            const currentUser = await AuthService.getCurrentUser();
-            setUser(currentUser);
+                const currentUser = await AuthService.getCurrentUser();
+                setUser(currentUser);
             } catch (error) {
-            console.error('Auth check failed:', error);
-            AuthService.removeToken();
+                console.error('Auth check failed:', error);
+                AuthService.removeToken();
+                setUser(null);
+
             }
         }
         setLoading(false);

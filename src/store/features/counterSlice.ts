@@ -1,7 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import commentsData from '../../app/data/comments.json'
 import { v4 as uuidv4 } from 'uuid';
-import { Blog, Comments, CreateComment } from '../../../types';
+import { Blog, Comments, CreateComment, Notification } from '../../../types';
 
 
 type SortMode = "rating" | "latest" | "oldest";
@@ -17,7 +17,6 @@ export interface AiState {
     isFuture: boolean
     searchTerm: string
     currentPage: number
-    createComment: CreateComment
     sortComment: SortMode,
     searchActive: boolean,
     allBlogs: Blog[];          // all blogs from backend
@@ -27,6 +26,8 @@ export interface AiState {
     title: string;
     content: string;
     viewMode: { [blogId: string]: CommentViewState };
+    notifications: Notification[];
+    unreadCount: number;
 
 }
 
@@ -37,7 +38,6 @@ const initialState: AiState = {
     isFuture: false,
     searchTerm: '',
     currentPage: 1,
-    createComment: {},
     sortComment: "rating",
     filteredBlogs: [{
         id: '',
@@ -56,6 +56,8 @@ const initialState: AiState = {
     title: "",
     content: "",
     viewMode: {},
+    notifications: [],
+    unreadCount: 0,
 
 }
 
@@ -81,10 +83,6 @@ const aiSlice =  createSlice({
 
         setSearchTerm: (state, action:PayloadAction<string>) => {
             state.searchTerm = action.payload.toLowerCase(); // doing it here instead of within the code
-        },
-
-        setCurrentPage: (state, action:PayloadAction<number>) => {
-            state.currentPage = action.payload
         },
 
         // Increment comment rating
@@ -125,16 +123,7 @@ const aiSlice =  createSlice({
 
         setCommentsForBlog: (state, action: PayloadAction<{ blogId: string, comments: Comments[] }>) => {
             state.commentsByBlog[action.payload.blogId] = action.payload.comments;
-        },
-
-
-        // Add a single comment
-        addCommentForBlog: (state, action: PayloadAction<Comments>) => {
-            const blogId = action.payload.blogId;
-            if (!state.commentsByBlog[blogId]) {
-                state.commentsByBlog[blogId] = [];
-            }
-            state.commentsByBlog[blogId].push(action.payload);
+            // its fine that its equal (replaces old comments with new comments) because we are fetching all comments after every create, update, delete, so we are always replacing old with new
         },
 
         addBlog: (state, action: PayloadAction<Blog>) => {
@@ -157,33 +146,6 @@ const aiSlice =  createSlice({
                 state.commentsByBlog[blogId] = state.commentsByBlog[blogId].filter(c => c.id !== commentId);
             }        
         },
-
-        updateCommentRatingOptimistic: (
-            state,
-            action: PayloadAction<{ blogId: string; commentId: number; newRating: number }>
-        ) => {
-            const { blogId, commentId, newRating } = action.payload;
-            const blogComments = state.commentsByBlog[blogId];
-
-            if (!blogComments) return;
-
-            const comment = blogComments.find(c => c.id === commentId);
-            if (comment) {
-                comment.rating = newRating;
-            }
-        },
-
-        setCreateComment: (
-            state, action: PayloadAction<{ blogId: string; value: string }>) => {
-            const { blogId, value } = action.payload;
-
-            if (!state.createComment[blogId]) {
-                state.createComment[blogId] = { comment: "" };
-            }
-
-            state.createComment[blogId].comment = value;
-        },
-
 
         setAllBlogs: (state, action: PayloadAction<Blog[]>) => {
             state.allBlogs = action.payload;
@@ -211,12 +173,24 @@ const aiSlice =  createSlice({
             if (blogIndex !== -1) { 
                 state.allBlogs[blogIndex].likes = likes; // If we find the index, index allblogs and update the blog we want likes
             }
-            
-            // Update in filteredBlogs
-            const filteredIndex = state.filteredBlogs.findIndex(blog => blog.id === blogId);
-            if (filteredIndex !== -1) {
-                state.filteredBlogs[filteredIndex].likes = likes;
+        },
+
+        setNotifications: (state, action: PayloadAction<Notification[]>) => {
+            state.notifications = action.payload;
+            state.unreadCount = action.payload.filter(n => !n.isRead).length;
+        },
+
+        markNotificationAsRead: (state, action: PayloadAction<number>) => {
+            const notif = state.notifications.find(n => n.id === action.payload);
+            if (notif) {
+                notif.isRead = true;
+                state.unreadCount = state.notifications.filter(n => !n.isRead).length;
             }
+        },
+
+        markAllNotificationsAsRead: (state) => {
+            state.notifications.forEach(n => { n.isRead = true; });
+            state.unreadCount = 0;
         },
 
     }
@@ -228,7 +202,6 @@ export const {
     setIsImpactful,
     setIsFuture,
     setSearchTerm,
-    setCurrentPage,
     incrementCommentRating,
     setSortComment,
     setFilteredBlogs, 
@@ -239,15 +212,15 @@ export const {
     setAllBlogs,
     deleteCommentFromBlog,
     setCommentsForBlog,
-    addCommentForBlog,
-    updateCommentRatingOptimistic,
-    setCreateComment,
     setIsLoading,
     setContent,
     setTitle,
     addBlog,
     setCommentView,
-    updateBlogLikes
+    updateBlogLikes,
+    setNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
 } = aiSlice.actions
 
 export default aiSlice.reducer

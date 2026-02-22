@@ -59,10 +59,10 @@ const MainBlog = () => {
 
   return (
     <>
-      <div className="flex flex-row justify-center items-start text-2xl  ">
+      <div className="flex flex-row justify-center items-start">
         <div
           key={animationKey}
-          className={`grid grid-cols-1 gap-2 md:p-2 animate-fadeInList  `}
+          className={`grid grid-cols-1 gap-2 md:p-2 animate-fadeInList w-full max-w-3xl`}
         >
           {!anyFilterActive && searchTerm && (
             <h1>
@@ -97,6 +97,7 @@ const MainBlog = () => {
                             blog.author.slice(1)
                           : "Unknown author"}
                       </span>
+                  
                     </div>
                     <div className="font-bold cursor-pointer">
                       {blog?.title}
